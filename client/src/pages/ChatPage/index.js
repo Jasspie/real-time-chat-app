@@ -10,14 +10,16 @@ export default function ChatPage({ client }) {
   const username = window.localStorage.getItem("username");
 
   useEffect(() => {
+    console.log("Setting up chat stream.");
     const strRq = new ReceiveMsgRequest();
     strRq.setUser(username);
 
-    var chatStream = client.receiveMsg(strRq, {});
+    const chatStream = client.receiveMsg(strRq, {});
     chatStream.on("data", (response) => {
       const from = response.getFrom();
       const msg = response.getMsg();
       const time = response.getTime();
+      console.log(`Received message from ${from}: ${msg}`);
 
       if (from === username) {
         setMsgList((oldArray) => [
@@ -36,6 +38,11 @@ export default function ChatPage({ client }) {
     chatStream.on("end", () => {
       console.log("Stream ended.");
     });
+
+    return () => {
+      console.log("Cleaning up chat stream.");
+      chatStream.cancel();
+    };
   }, []);
 
   useEffect(() => {
@@ -43,6 +50,7 @@ export default function ChatPage({ client }) {
   }, []);
 
   function getAllUsers() {
+    console.log("Fetching all users...");
     client.getAllUsers(new Empty(), null, (err, response) => {
       let usersList = response?.getUsersList() || [];
       usersList = usersList
@@ -58,6 +66,7 @@ export default function ChatPage({ client }) {
   }
 
   function sendMessage(message) {
+    console.log(`Sending message: ${message}`);
     const msg = new ChatMessage();
     msg.setMsg(message);
     msg.setFrom(username);

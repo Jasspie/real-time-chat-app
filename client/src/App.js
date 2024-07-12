@@ -22,7 +22,6 @@ export default function App() {
     client.join(user, null, (err, response) => {
       if (err) return console.log(err);
       const error = response.getError();
-      const msg = response.getMsg();
 
       if (error === 1) {
         setSubmitted(true);
